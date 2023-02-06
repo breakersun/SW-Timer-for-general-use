@@ -11,7 +11,9 @@
 * 完成日期：2015年2月20日
 ******************************************************************************/
 #ifndef __SOFTTIMER_H_
-#define __SOFTTIMER_H_    
+#define __SOFTTIMER_H_
+
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -21,32 +23,32 @@ extern "C" {
 #define SW_OK                   (0) /* 操作成功返回值 */
 
 typedef int (*TMRCALLBACK)(void *pArg);
-typedef uint32 (*TMRSOURCE)(void);
+typedef uint32_t (*TMRSOURCE)(void);
 
 /****************************************************
 * 结构名：TIMER
 * 描述： 软件定时器数据结构
 * 参数：
-     uint32       start;           0~0xFFFFFFFF 计时器起始时间
-     uint32       now;             0~0xFFFFFFFF 计时器当前时间
-     uint32       elapse;          0~0xFFFFFFFF 计时器已过时间
-     uint32       timeout;         0~0xFFFFFFFF 计时器计时时间
+     uint32_t       start;           0~0xFFFFFFFF 计时器起始时间
+     uint32_t       now;             0~0xFFFFFFFF 计时器当前时间
+     uint32_t       elapse;          0~0xFFFFFFFF 计时器已过时间
+     uint32_t       timeout;         0~0xFFFFFFFF 计时器计时时间
      TMRCALLBACK  pfTimerCallback;              计时结束后执行的回调函数
      void        *pArg;                         回调函数的参数
-     uint8        periodic;        SINGLE       单次触发
+     uint8_t        periodic;        SINGLE       单次触发
                                    PERIOIC      周期触发
 * 作者： David Han, Ian
 * 日期: 2015-2-20
 ****************************************************/
 typedef struct _TIMER
 {
-    uint32      start;           /* 计时器起始时间 */
-    uint32      now;             /* 计时器当前时间 */
-    uint32      elapse;          /* 计时器已过时间 */
-    uint32      timeout;         /* 计时器计时时间 */
+    uint32_t      start;           /* 计时器起始时间 */
+    uint32_t      now;             /* 计时器当前时间 */
+    uint32_t      elapse;          /* 计时器已过时间 */
+    uint32_t      timeout;         /* 计时器计时时间 */
     TMRCALLBACK pfTimerCallback; /* 计时结束后执行的回调函数 */
     void       *pArg;            /* 回调函数的参数 */
-    uint8       periodic;        /* 单次触发/周期触发 */
+    uint8_t       periodic;        /* 单次触发/周期触发 */
 } TIMER;
 
 
@@ -78,20 +80,20 @@ int TimersInit(TMRSOURCE pfTimer);
 
 
 /*************************************************************************
-* 函数名称：TIMER_TABLE* CreatTimer(uint32 dwTimeout, uint8 ucPeriodic, TMRCALLBACK pfTimerCallback, void *pArg)
+* 函数名称：TIMER_TABLE* CreatTimer(uint32_t dwTimeout, uint8_t ucPeriodic, TMRCALLBACK pfTimerCallback, void *pArg)
 * 功能说明：创建并启动软件定时器
-* 输入参数：uint32         dwTimeout  0~0xFFFFFFFF 定时时间
-           uint8          ucPeriodic SINGLE      单次触发
+* 输入参数：uint32_t         dwTimeout  0~0xFFFFFFFF 定时时间
+           uint8_t          ucPeriodic SINGLE      单次触发
                                      PERIODIC    周期触发
            TMRCALLBACK    pfTimerCallback        定时结束时回调函数
             void         *pArg                   回调函数参数
-            
+
 * 输出参数：无
 * 返 回 值：操作失败 : NULL
            操作成功 : 定时器模块指针
 * 其它说明：创建完定时器后返回定时器结点的地址，改地址用于重启或删除该定时器
 **************************************************************************/
-TIMER_TABLE* CreatTimer(uint32 dwTimeout, uint8 ucPeriodic, TMRCALLBACK pfTimerCallback, void *pArg);
+TIMER_TABLE* CreatTimer(uint32_t dwTimeout, uint8_t ucPeriodic, TMRCALLBACK pfTimerCallback, void *pArg);
 
 
 /*************************************************************************
@@ -103,7 +105,7 @@ TIMER_TABLE* CreatTimer(uint32 dwTimeout, uint8 ucPeriodic, TMRCALLBACK pfTimerC
            SW_OK 操作成功
 * 其它说明：无
 **************************************************************************/
-int KillTimer(TIMER_TABLE* ptNode);
+int KillSoftTimer(TIMER_TABLE* ptNode);
 
 
 /*************************************************************************

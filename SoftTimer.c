@@ -12,7 +12,8 @@
 * 完成日期：2015年2月20日
 ******************************************************************************/
 
-#include "common.h"
+#include <stdlib.h>
+#include <stdio.h>
 #include "SoftTimer.h"
 
 static TIMER_TABLE* sg_ptTimeTableHead = NULL;             /* 链表表头        */
@@ -32,7 +33,7 @@ int TimersInit(TMRSOURCE pfTimer)
     {
         return SW_ERROR; /* 检查注册函数是否为空指针 */
     }
-    
+
     sg_ptTimeTableHead = (TIMER_TABLE*)malloc(sizeof(TIMER_TABLE)); /* 申请头结点，该头节点为空节点，方便链表节点增加和删除 */
     if (NULL == sg_ptTimeTableHead)
     {
@@ -42,26 +43,26 @@ int TimersInit(TMRSOURCE pfTimer)
     /* 申请成功后进行初始化 */
     sg_ptTimeTableHead->next = NULL;               /* 下个结点地址置空     */
     sg_pfSysClk              = (TMRSOURCE)pfTimer; /* 注册系统1ms时钟函数  */
-    
+
     return SW_OK;
 }
 
 
 /*************************************************************************
-* 函数名称：TIMER_TABLE* CreatTimer(uint32 dwTimeout, uint8 ucPeriodic, TMRCALLBACK pfTimerCallback, void *pArg)
+* 函数名称：TIMER_TABLE* CreatTimer(uint32_t dwTimeout, uint8_t ucPeriodic, TMRCALLBACK pfTimerCallback, void *pArg)
 * 功能说明：创建并启动软件定时器
-* 输入参数：uint32       dwTimeout  0~0xFFFFFFFF 定时时间
-            uint8       ucPeriodic  SINGLE       单次触发
+* 输入参数：uint32_t       dwTimeout  0~0xFFFFFFFF 定时时间
+            uint8_t       ucPeriodic  SINGLE       单次触发
                                     PERIODIC     周期触发
             TMRCALLBACK pfTimerCallback          定时结束时回调函数
             void       *pArg                     回调函数参数
-            
+
 * 输出参数：无
 * 返 回 值：操作失败 : NULL
             操作成功 : 定时器模块指针
 * 其它说明：创建完定时器后返回定时器结点的地址，改地址用于重启或删除该定时器
 **************************************************************************/
-TIMER_TABLE* CreatTimer(uint32 dwTimeout, uint8 ucPeriodic, TMRCALLBACK pfTimerCallback, void *pArg)
+TIMER_TABLE* CreatTimer(uint32_t dwTimeout, uint8_t ucPeriodic, TMRCALLBACK pfTimerCallback, void *pArg)
 {
     TIMER_TABLE* ptTimerNode;
     TIMER_TABLE* ptFind;
@@ -100,7 +101,7 @@ TIMER_TABLE* CreatTimer(uint32 dwTimeout, uint8 ucPeriodic, TMRCALLBACK pfTimerC
 }
 
 /*************************************************************************
-* 函数名称：int KillTimer(TIMER_TABLE* ptNode)
+* 函数名称：int KillSoftTimer(TIMER_TABLE* ptNode)
 * 功能说明：删除定时器结点
 * 输入参数：TIMER_TABLE* ptNode 定时器结点地址
 * 输出参数：无
@@ -108,7 +109,7 @@ TIMER_TABLE* CreatTimer(uint32 dwTimeout, uint8 ucPeriodic, TMRCALLBACK pfTimerC
            SW_OK 操作成功
 * 其它说明：无
 **************************************************************************/
-int KillTimer(TIMER_TABLE* ptNode)
+int KillSoftTimer(TIMER_TABLE* ptNode)
 {
     TIMER_TABLE* ptFind;
 
@@ -171,20 +172,21 @@ int ProcessTimer(void)
     {
         return SW_OK; /* 没有定时器需要运行 */
     }
-    ptFind = sg_ptTimeTableHead;          /* 找到第一个有效结点 */
+    // ptFind = sg_ptTimeTableHead;          /* 找到第一个有效结点 */
+    ptFind = sg_ptTimeTableHead->next;          /* 找到第一个有效结点 */
     while(ptFind)                         /* 如果不是末尾结点 */
     {
         ptFind->data.now = sg_pfSysClk(); /* 更新时间 */
 
         /* 计算此刻时间与起始时间的时间差 */
         ptFind->data.elapse = ptFind->data.now - ptFind->data.start;
-        
+
         if(ptFind->data.elapse >= ptFind->data.timeout)          /* 如果时差大于等于设定的计时时间 */
         {
             if(ptFind->data.pfTimerCallback)                     /* 且已经注册了合法的回调函数 */
             {
                 ptFind->data.pfTimerCallback(ptFind->data.pArg); /* 执行回调函数 */
-            }    
+            }
             if(ptFind->data.periodic)
             {
                 ResetTimer(ptFind);                              /* 如果是周期性触发，重启定时器 */
@@ -193,9 +195,9 @@ int ProcessTimer(void)
             {                                                    /* 如果是单次触发，删除定时器 */
                 ptNodeFree = ptFind;
                 ptFind = ptFind->next;
-                KillTimer(ptNodeFree);
+                KillSoftTimer(ptNodeFree);
                 continue;
-            }            
+            }
         }
         ptFind = ptFind->next;                                   /* 继续更新下一个定时器结点 */
     }
