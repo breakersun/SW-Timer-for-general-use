@@ -1,4 +1,3 @@
-#include <string.h>
 #ifdef TEST
 
 #include "unity.h"
@@ -26,16 +25,6 @@ void test_SoftTimer_TimerListShouldOnlyHaveHeadAfterInit(void)
     TIMER data;
     memset(&data, 0, sizeof(data));
     TEST_ASSERT_EQUAL_MEMORY(&data, &(sg_ptTimeTableHead->data), sizeof(TIMER));
-}
-
-void test_SoftTimer_TimerHeadShouldBeNullIfNoTimerSource(void)
-{
-    TEST_IGNORE_MESSAGE("test_SoftTimer_TimerHeadShouldBeNullIfNoTimerSource");
-}
-
-void test_SoftTimer_CreateFailIfNotInit(void)
-{
-    TEST_IGNORE_MESSAGE("test_SoftTimer_CreateFailIfNotInit");
 }
 
 void test_SoftTimer_NewCreateStayInListTail(void)
