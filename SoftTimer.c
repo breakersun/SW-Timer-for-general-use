@@ -14,9 +14,15 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include "SoftTimer.h"
 
+#ifdef TEST
+TIMER_TABLE* sg_ptTimeTableHead = NULL;             /* 链表表头        */
+#else
 static TIMER_TABLE* sg_ptTimeTableHead = NULL;             /* 链表表头        */
+#endif
+
 static TMRSOURCE    sg_pfSysClk        = NULL;             /* 系统1ms时钟函数 */
 /*************************************************************************
 * 函数名称：int TimersInit(TMRSOURCE pfTimer)
@@ -43,6 +49,7 @@ int TimersInit(TMRSOURCE pfTimer)
     /* 申请成功后进行初始化 */
     sg_ptTimeTableHead->next = NULL;               /* 下个结点地址置空     */
     sg_pfSysClk              = (TMRSOURCE)pfTimer; /* 注册系统1ms时钟函数  */
+    memset(&(sg_ptTimeTableHead->data), 0, sizeof(TIMER));
 
     return SW_OK;
 }
