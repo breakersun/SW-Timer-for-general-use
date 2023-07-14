@@ -20,7 +20,7 @@ int timer_cb(void* args)
 
 int timer_cb_remove_self(void* args)
 {
-    KillSoftTimer(timer_self_destruct);
+    KillSoftTimerLater(timer_self_destruct);
 }
 
 void setUp(void)

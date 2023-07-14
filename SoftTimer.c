@@ -12,6 +12,7 @@
 * 完成日期：2015年2月20日
 ******************************************************************************/
 
+#include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -109,7 +110,7 @@ TIMER_TABLE* CreatTimer(uint32_t dwTimeout, uint8_t ucPeriodic, TMRCALLBACK pfTi
 
 /*************************************************************************
 * 函数名称：int KillSoftTimer(TIMER_TABLE* ptNode)
-* 功能说明：删除定时器结点
+* 功能说明：删除定时器结点; 在定时器的回调函数中不可以使用
 * 输入参数：TIMER_TABLE* ptNode 定时器结点地址
 * 输出参数：无
 * 返 回 值：SW_ERROR: 操作失败
@@ -141,6 +142,24 @@ int KillSoftTimer(TIMER_TABLE* ptNode)
 }
 
 
+/*************************************************************************
+* 函数名称：int KillSoftTimerLater(TIMER_TABLE* ptNode)
+* 功能说明：标记待删除的定时器结点，由core移除它; 在定时器的回调函数中可以安全使用
+* 输入参数：TIMER_TABLE* ptNode 定时器结点地址
+* 输出参数：无
+* 返 回 值：SW_ERROR: 操作失败
+           SW_OK 操作成功
+* 其它说明：无
+**************************************************************************/
+int KillSoftTimerLater(TIMER_TABLE* ptNode)
+{
+    if (NULL == ptNode) {
+        return SW_ERROR; /* 检查定时器结点是否为空 */
+    }
+
+    // make it onetime, and leave it to TimerCore to clean it up
+    ptNode->data.periodic = 0;
+}
 /*************************************************************************
 * 函数名称：int ResetTimer(TIMER_TABLE* ptNode)
 * 功能说明：重启定时器结点
