@@ -75,6 +75,10 @@
     #- warnings_report
     - xml_tests_report
 
+:xml_tests_report:
+  :artifact_filename: "report.xml"
+  :path: "build/artifacts/test/"
+
 # override the default extensions for your system and toolchain
 :extension:
   #:header: .h
