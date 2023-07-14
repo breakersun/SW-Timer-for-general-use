@@ -70,4 +70,19 @@ void test_SoftTimer_TimerListRemainIntegratedAfterKill(void)
     TEST_ASSERT_NULL(timer3->next);
 }
 
+void test_SoftTimer_TimerWontExpireWhenItsNotTime(void)
+{
+    TEST_IGNORE_MESSAGE("test_SoftTimer_TimerWontExpireWhenItsNotTime");
+}
+
+void test_SoftTimer_OnetimeTimerExpiredAndRemovedOnTimeAndWontGetCalledAgain(void)
+{
+    TEST_IGNORE_MESSAGE("test_SoftTimer_OnetimeTimerExpiredAndRemovedOnTimeAndWontGetCalledAgain");
+}
+
+void test_SoftTimer_RepeatTimerExpiredEveryRoundOnTime(void)
+{
+    TEST_IGNORE_MESSAGE("test_SoftTimer_RepeatTimerExpiredEveryRoundOnTime");
+}
+
 #endif // TEST
