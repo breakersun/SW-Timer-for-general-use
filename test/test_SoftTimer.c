@@ -1,18 +1,27 @@
 #ifdef TEST
 
 #include "unity.h"
+#include "stdint.h"
 
 #include "SoftTimer.h"
 
-uint32_t fake_time_in_ms = 0;
+uint32_t fake_time_in_ms;
 unsigned int fake_time(void) { return fake_time_in_ms; }
 extern TIMER_TABLE* sg_ptTimeTableHead;
+uint32_t timer_get_called_times;
+uint32_t timer_get_called_arg;
 
 int timer_cb(void* args)
-{}
+{
+    timer_get_called_times++;
+    timer_get_called_arg = *((uint32_t *)args);
+}
 
 void setUp(void)
 {
+    fake_time_in_ms = 0;
+    timer_get_called_times = 0;
+    timer_get_called_arg = 0;
     TimersInit(fake_time);
 }
 
@@ -70,19 +79,53 @@ void test_SoftTimer_TimerListRemainIntegratedAfterKill(void)
     TEST_ASSERT_NULL(timer3->next);
 }
 
+void test_SoftTimer_TimerExpireWhenItsTime(void)
+{
+    fake_time_in_ms = 1;
+    uint32_t timer_arg = 0xbeaf;
+    TIMER_TABLE *timer1 = CreatTimer(1000, 0, timer_cb, (void *)&timer_arg);
+    fake_time_in_ms = 1001;
+    ProcessTimer();
+    TEST_ASSERT_EQUAL(1, timer_get_called_times);
+    TEST_ASSERT_EQUAL_HEX(timer_arg, timer_get_called_arg);
+}
+
 void test_SoftTimer_TimerWontExpireWhenItsNotTime(void)
 {
-    TEST_IGNORE_MESSAGE("test_SoftTimer_TimerWontExpireWhenItsNotTime");
+    fake_time_in_ms = 1;
+    uint32_t timer_arg = 0xbeaf;
+    TIMER_TABLE *timer1 = CreatTimer(1000, 0, timer_cb, (void *)&timer_arg);
+    fake_time_in_ms = 1000;
+    ProcessTimer();
+    TEST_ASSERT_EQUAL(0, timer_get_called_times);
+    TEST_ASSERT_NOT_EQUAL_HEX32(timer_arg, timer_get_called_arg);
 }
 
 void test_SoftTimer_OnetimeTimerExpiredAndRemovedOnTimeAndWontGetCalledAgain(void)
 {
-    TEST_IGNORE_MESSAGE("test_SoftTimer_OnetimeTimerExpiredAndRemovedOnTimeAndWontGetCalledAgain");
+    fake_time_in_ms = 1;
+    uint32_t timer_arg = 0xbeaf;
+    TIMER_TABLE *timer1 = CreatTimer(1000, 0, timer_cb, (void *)&timer_arg);
+    fake_time_in_ms = 1001;
+    ProcessTimer();
+    fake_time_in_ms = 2001;
+    ProcessTimer();
+    TEST_ASSERT_EQUAL(1, timer_get_called_times);
+    TEST_ASSERT_NULL(sg_ptTimeTableHead->next);
 }
 
 void test_SoftTimer_RepeatTimerExpiredEveryRoundOnTime(void)
 {
-    TEST_IGNORE_MESSAGE("test_SoftTimer_RepeatTimerExpiredEveryRoundOnTime");
+    fake_time_in_ms = 1;
+    uint32_t timer_arg = 0xbeaf;
+    TIMER_TABLE *timer1 = CreatTimer(1000, 1, timer_cb, (void *)&timer_arg);
+    fake_time_in_ms = 1001;
+    ProcessTimer();
+    fake_time_in_ms = 2001;
+    ProcessTimer();
+    fake_time_in_ms = 3001;
+    ProcessTimer();
+    TEST_ASSERT_EQUAL(3, timer_get_called_times);
 }
 
 #endif // TEST
