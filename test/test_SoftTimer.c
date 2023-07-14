@@ -10,11 +10,17 @@ unsigned int fake_time(void) { return fake_time_in_ms; }
 extern TIMER_TABLE* sg_ptTimeTableHead;
 uint32_t timer_get_called_times;
 uint32_t timer_get_called_arg;
+TIMER_TABLE *timer_self_destruct;
 
 int timer_cb(void* args)
 {
     timer_get_called_times++;
     timer_get_called_arg = *((uint32_t *)args);
+}
+
+int timer_cb_remove_self(void* args)
+{
+    KillSoftTimer(timer_self_destruct);
 }
 
 void setUp(void)
@@ -128,4 +134,18 @@ void test_SoftTimer_RepeatTimerExpiredEveryRoundOnTime(void)
     TEST_ASSERT_EQUAL(3, timer_get_called_times);
 }
 
+void test_SoftTimer_RemoveSelfInCallbackShouldNotEffectOthers(void)
+{
+    fake_time_in_ms = 1;
+    uint32_t timer_arg = 0xbeaf;
+    TIMER_TABLE *timer1 = CreatTimer(1000, 1, timer_cb, (void *)&timer_arg);
+    timer_self_destruct = CreatTimer(2000, 1, timer_cb_remove_self, (void *)&timer_arg);
+    fake_time_in_ms = 1001;
+    ProcessTimer();
+    fake_time_in_ms = 2001;
+    ProcessTimer();
+    fake_time_in_ms = 3001;
+    ProcessTimer();
+    TEST_ASSERT_EQUAL(3, timer_get_called_times);
+}
 #endif // TEST
