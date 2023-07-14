@@ -16,7 +16,7 @@ int timer_cb(void* args)
 {
     printf("1s timer called\n");
     its_time = true;
-    timer1->data.periodic = false;
+    KillSoftTimerLater(timer1);
 }
 int timer_2_cb(void* args)
 {
@@ -48,8 +48,6 @@ void main(void)
     timer3 = CreatTimer(500, 1, timer_3_cb, 0);
     if (!timer3)
         printf("failed to create timer 3\n");
-
-    // KillSoftTimer(timer3);
 
     printf("main setup done\n");
     while (1) {
